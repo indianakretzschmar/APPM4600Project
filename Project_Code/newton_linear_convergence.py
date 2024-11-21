@@ -23,12 +23,6 @@ def driver():
     iterations = range(len(errors))
     log_errors = np.log(errors)  # Compute log of errors
     convergence_order(errors[:-1],gval)
-    
-    # plt.figure(figsize=(8, 6))
-    # plt.plot(iterations, log_errors, marker='o')
-    # plt.xlabel('Iteration $k$', fontsize=14)
-    # plt.ylabel(r'$\log(e_k)$', fontsize=14)
-    # plt.title("Newton's Method Performance", fontsize=16)
    
     plt.figure(figsize=(8, 6))
     plt.plot(iterations, errors, color = 'dodgerblue', marker='o')

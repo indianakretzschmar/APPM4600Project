@@ -14,7 +14,6 @@ def driver():
     print("The Newton method found the solution:", xstar)
     print("g evaluated at this point is:", gval)
     print("ier is:", ier)
-    convergence_order(errors[:-1],gval)
     
 
 def evalF(x):
@@ -70,17 +69,6 @@ def evalH(x):
         [0,0,6*x[2]]
     ])
     return H
-
-def convergence_order(x,xstar):
-    diff1 = np.abs(x[1::]-xstar)
-    diff2 = np.abs(x[0:-1]-xstar)
-    fit = np.polyfit(np.log(diff2.flatten()),np.log(diff1.flatten()),1)
-    print('the order equation is')
-    print('log(|p_{n+1}-p|) = log(lambda) + alpha*log(|p_n-p|) where')
-    print('lambda = ', str(np.exp(fit[1])))
-    print('alpha = ', str(fit[0]))
-
-    return [fit,diff1,diff2]
 
 ###############################
 ### Newton's method
