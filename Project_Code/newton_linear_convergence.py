@@ -3,21 +3,26 @@ import numpy as np
 import math
 from numpy.linalg import inv
 from numpy.linalg import norm
+import time
 
 def driver():
     #THIS CODE IS FOR LINEARLY CONVERGENT NEWTON'S
     Nmax = 100
     x0 = np.array([1.0, -2.0, 2.0])
     tol = 1e-6
-    
+
+    start_time = time.perf_counter()
     [xstar, gval, ier,errors] = NewtonMethod(x0, tol, Nmax)
+    end_time = time.perf_counter()
     print("The Newton method found the solution:", xstar)
     print("g evaluated at this point is:", gval)
     print("ier is:", ier)
+    print("Time elapsed:", end_time-start_time)
 
     # Plotting log(error) vs. iterations
     iterations = range(len(errors))
     log_errors = np.log(errors)  # Compute log of errors
+    convergence_order(errors[:-1],gval)
     
     # plt.figure(figsize=(8, 6))
     # plt.plot(iterations, log_errors, marker='o')
@@ -26,7 +31,7 @@ def driver():
     # plt.title("Newton's Method Performance", fontsize=16)
    
     plt.figure(figsize=(8, 6))
-    plt.plot(iterations, errors, marker='o')
+    plt.plot(iterations, errors, color = 'dodgerblue', marker='o')
     plt.xlabel('Iteration $k$', fontsize=14)
     plt.ylabel(r'$e_k$', fontsize=14)
     plt.title("Newton's Method Performance", fontsize=16)
@@ -71,16 +76,30 @@ def eval_hessianf(x):
     m = len(x)
     second_derivatives = np.zeros((m, m))
     for i in range(n):
-        Fi_hessian = eval_hessianFi(x, i)  # Hessian of each F_i
+        Fi_hessian = evalH(x)  # Hessian of each F_i
         second_derivatives += 2 * F[i] * Fi_hessian
     
     # Full Hessian
     return 2 * np.dot(J.T, J) + second_derivatives
 
-def eval_hessianFi(x, i):
-
-    H = np.zeros((3, 3))  # Replace with second derivatives of F_i
+def evalH(x):
+    H = np.array([
+        [0,np.exp(x[1]),-2],
+        [0,6*x[1],0],
+        [2,0,2]
+    ])
     return H
+
+def convergence_order(x,xstar):
+    diff1 = np.abs(x[1::]-xstar)
+    diff2 = np.abs(x[0:-1]-xstar)
+    fit = np.polyfit(np.log(diff2.flatten()),np.log(diff1.flatten()),1)
+    print('the order equation is')
+    print('log(|p_{n+1}-p|) = log(lambda) + alpha*log(|p_n-p|) where')
+    print('lambda = ', str(np.exp(fit[1])))
+    print('alpha = ', str(fit[0]))
+
+    return [fit,diff1,diff2]
 
 ###############################
 ### Newton's method

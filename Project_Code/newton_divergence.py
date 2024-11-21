@@ -6,50 +6,31 @@ from numpy.linalg import norm
 
 def driver():
     #THIS CODE IS FOR DIVERGENT NEWTON'S
-    Nmax = 1000
-    #x0 = np.array([1,1.5,1,2])
-    #x0 = np.array([0, 2.0, 1.0, 1.])
-    x0 = np.array([2.5, 1.5, 0, 1.5])
+    Nmax = 100
+    x0 = np.array([0,0,0])
     tol = 1e-6
     
     [xstar, gval, ier,errors] = NewtonMethod(x0, tol, Nmax)
     print("The Newton method found the solution:", xstar)
     print("g evaluated at this point is:", gval)
     print("ier is:", ier)
-
-    # Plotting log(error) vs. iterations
-    iterations = range(len(errors))
-    log_errors = np.log(errors)  # Compute log of errors
-    
-    # plt.figure(figsize=(8, 6))
-    # plt.plot(iterations, log_errors, marker='o')
-    # plt.xlabel('Iteration $k$', fontsize=14)
-    # plt.ylabel(r'$\log(e_k)$', fontsize=14)
-    # plt.title("Newton's Method Performance", fontsize=16)
-    
-    plt.figure(figsize=(8, 6))
-    plt.plot(iterations, errors, marker='o')
-    plt.xlabel('Iteration $k$', fontsize=14)
-    plt.ylabel(r'$e_k$', fontsize=14)
-    plt.title("Newton's Method Performance", fontsize=16)
-    plt.show()
+    convergence_order(errors[:-1],gval)
     
 
 def evalF(x):
-    F = np.zeros(4)
-    F[0] = x[0]**2 - 4*x[0] + x[1] + 1
-    F[1] = 10**(-4) * (x[1]**2 - 3*x[1] + x[2] + 2)
-    F[2] = x[0] + x[1] - 0.01*x[2] + 0.05*x[3] - 1
-    F[3] = 0.1*x[0]**2 - 0.3*x[1] + x[3]**2 - 2
+    F = np.zeros(3)
+    F[0] = x[0]**2 - x[1]
+    F[1] = x[0] * x[1] + x[1]**2
+    F[2] = x[2]**3
     return F
 
 
 def evalJ(x):
+    #first derivatives
     J = np.array([
-        [2*x[0]-4,1,0,0],
-        [0,10**(-4)*(2*x[1]-3),10**(-4),0],
-        [1,1,-0.01,0.05],
-        [0.2*x[0],0.3,0,2*x[3]]
+        [2*x[1],-1,0],
+        [x[1],x[0]+2*x[1],0],
+        [0,0,3*x[2]**2]
     ])
     return J
 
@@ -75,16 +56,31 @@ def eval_hessianf(x):
     m = len(x)
     second_derivatives = np.zeros((m, m))
     for i in range(n):
-        Fi_hessian = eval_hessianFi(x, i)  # Hessian of each F_i
+        Fi_hessian = evalH(x)  # Hessian of each F_i
         second_derivatives += 2 * F[i] * Fi_hessian
     
     # Full Hessian
     return 2 * np.dot(J.T, J) + second_derivatives
 
-def eval_hessianFi(x, i):
-
-    H = np.zeros((4, 4))  # Replace with second derivatives of F_i
+def evalH(x):
+    #second derivatives
+    H = np.array([
+        [0,0,0],
+        [0,2,0],
+        [0,0,6*x[2]]
+    ])
     return H
+
+def convergence_order(x,xstar):
+    diff1 = np.abs(x[1::]-xstar)
+    diff2 = np.abs(x[0:-1]-xstar)
+    fit = np.polyfit(np.log(diff2.flatten()),np.log(diff1.flatten()),1)
+    print('the order equation is')
+    print('log(|p_{n+1}-p|) = log(lambda) + alpha*log(|p_n-p|) where')
+    print('lambda = ', str(np.exp(fit[1])))
+    print('alpha = ', str(fit[0]))
+
+    return [fit,diff1,diff2]
 
 ###############################
 ### Newton's method
@@ -94,6 +90,7 @@ def NewtonMethod(x, tol, Nmax):
     for its in range(Nmax):
         gradf = eval_gradg(x)
         H = eval_hessianf(x)
+        print(H)
 
         try:
             delta = -np.linalg.solve(H, gradf)
