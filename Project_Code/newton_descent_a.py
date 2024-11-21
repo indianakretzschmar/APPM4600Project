@@ -6,8 +6,9 @@ from numpy.linalg import norm
 
 def driver():
     #THIS CODE IS FOR QUADRATICALLY CONVERGENT NEWTON'S
+
     Nmax = 100
-    x0 = np.array([1.5,0.5,2.5])
+    x0 = np.array([1.5,0.5,0])
     tol = 1e-6
     
     [xstar, gval, ier,errors,evals] = NewtonMethod(x0, tol, Nmax)
@@ -18,32 +19,21 @@ def driver():
     # Plotting log(error) vs. iterations
     iterations = range(len(errors))
     log_errors = np.log(errors)  # Compute log of errors
-
+    #convergence_order(errors,gval)
     
-    plt.figure(figsize=(8, 6))
-    plt.plot(iterations, log_errors, marker='o')
-    plt.xlabel('Iteration $k$', fontsize=14)
-    plt.ylabel(r'$\log(e_k)$', fontsize=14)
-    plt.title("Newton's Method Performance", fontsize=16)
-
-
     plt.figure(figsize=(8, 6))
     plt.plot(iterations, errors, marker='o')
     plt.xlabel('Iteration $k$', fontsize=14)
     plt.ylabel(r'$e_k$', fontsize=14)
     plt.title("Newton's Method Performance", fontsize=16)
     plt.show()
-    
-    # plt.axhline(0, color = 'black', linewidth=.9)
-    # plt.axvline(0, color = 'black', linewidth=.9)
-    # plt.plot(xvals,f0(xvals),label = 'F[0]',color = 'C0')
-    # plt.plot(xvals,f1(xvals),label = 'F[1]',color = 'crimson')
-    # plt.plot(xvals,f2(xvals),label = 'F[2]',color = 'mediumpurple')
-    # plt.title("Functions", fontsize=16)
-    # plt.legend()
-    # plt.show()
 
-    
+    # plt.figure(figsize=(8, 6))
+    # plt.plot(iterations, log_errors, marker='o')
+    # plt.xlabel('Iteration $k$', fontsize=14)
+    # plt.ylabel(r'$\log(e_k)$', fontsize=14)
+    # plt.title("Newton's Method Performance", fontsize=16)
+    # plt.show()
 
 
 def evalF(x):
@@ -93,6 +83,19 @@ def eval_hessianFi(x, i):
 
     H = np.zeros((3, 3))  # Replace with second derivatives of F_i
     return H
+
+
+def convergence_order(x,xstar):
+    diff1 = np.abs(x[1::]-xstar)
+    diff2 = np.abs(x[0:-1]-xstar)
+    fit = np.polyfit(np.log(diff2.flatten()),np.log(diff1.flatten()),1)
+    print('the order equation is')
+    print('log(|p_{n+1}-p|) = log(lambda) + alpha*log(|p_n-p|) where')
+    print('lambda = ', str(np.exp(fit[1])))
+    print('alpha = ', str(fit[0]))
+
+    return [fit,diff1,diff2]
+
 
 ###############################
 ### Newton's method
