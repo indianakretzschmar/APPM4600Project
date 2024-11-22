@@ -77,13 +77,27 @@ def eval_hessianf(x):
     # Full Hessian
     return 2 * np.dot(J.T, J) + second_derivatives
 
-def evalH(x):
-    H = np.array([
-        [2,0,0],
-        [0,2,0],
-        [0,0,2]
-    ])
-    return H
+def evalH(x, i):
+    # HESSIAN OF THE I-TH COMPONENT OF F(X)
+
+    if i == 0:  # F_0(x) = x_0^2 + x_1 + x_2 - 3
+        return np.array([
+            [2, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0]
+        ])
+    elif i == 1:  # F_1(x) = x_0 + x_1^2 - x_2 - 2
+        return np.array([
+            [0, 0, 0],
+            [0, 2, 0],
+            [0, 0, 0]
+        ])
+    elif i == 2:  # F_2(x) = x_0 - x_1 + x_2^2 - 1
+        return np.array([
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 2]
+        ])
 
 
 def convergence_order(x,xstar):
